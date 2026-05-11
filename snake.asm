@@ -2,7 +2,7 @@
 .STACK 100H
 
 .DATA
-    ; --- Các chuỗi văn bản (Tiếng Việt không dấu) ---
+    ; các chuỗi văn bản (tiếng việt không dấu)
     msgTitle        DB '=== GAME RAN SAN MOI ===', '$'
     msgHighScoreStr DB 'Ky luc hien tai: ', '$'
     msgDiff1        DB '1. De (Easy)', '$'
@@ -14,28 +14,30 @@
     
     msgScore        DB 'Diem: ', '$'
     msgGameOver     DB 'GAME OVER!', '$'
+    msgWin          DB 'BAN DA CHIEN THANG!', '$'
     msgPlayAgain    DB 'Ban co muon choi lai khong (Y/N)? ', '$'
     
-    ; --- Cấu hình Game ---
+    ; cấu hình game
     mapWidth    EQU 16
     mapHeight   EQU 16
-    offsetX     DB 32   ; Độ dời X để in bản đồ ra giữa màn hình
-    offsetY     DB 4    ; Độ dời Y để in bản đồ ra giữa màn hình
+    offsetX     DB 32   ; độ dời x để in bản đồ ra giữa màn hình
+    offsetY     DB 4    ; độ dời y để in bản đồ ra giữa màn hình
     
-    ; --- Trạng thái Rắn ---
-    snakeX      DB 256 DUP(0) ; Mảng lưu tọa độ X (Tối đa 16x16 = 256)
-    snakeY      DB 256 DUP(0) ; Mảng lưu tọa độ Y
-    snakeLen    DW 3          ; Chiều dài ban đầu
-    dir         DB 1          ; Hướng: 0=Lên, 1=Phải, 2=Xuống, 3=Trái
+    ; trạng thái rắn
+    snakeX      DB 256 DUP(0) ; mảng lưu tọa độ x (tối đa 16x16 = 256)
+    snakeY      DB 256 DUP(0) ; mảng lưu tọa độ y
+    snakeLen    DW 3          ; chiều dài ban đầu
+    dir         DB 1          ; hướng: 0=lên, 1=phải, 2=xuống, 3=trái
     
-    ; --- Biến Game ---
+    ; biến game
     foodX       DB 0
     foodY       DB 0
     score       DW 0
     highScore   DW 0
     gameOver    DB 0
+    gameWin     DB 0
     
-    ; --- Biến Delay (Microseconds) cho Interrupt 15h AH=86h ---
+    ; biến delay (microseconds) cho interrupt 15h ah=86h
     delayCX     DW 0
     delayDX     DW 0
 
@@ -47,7 +49,7 @@ MAIN PROC
 MAIN_MENU_LOOP:
     CALL CLEAR_SCREEN
     
-    ; In Title
+    ; in title
     MOV DL, 25
     MOV DH, 5
     CALL SET_CURSOR
@@ -55,7 +57,7 @@ MAIN_MENU_LOOP:
     LEA DX, msgTitle
     INT 21H
     
-    ; In Ky luc
+    ; in ky luc
     MOV DL, 25
     MOV DH, 7
     CALL SET_CURSOR
@@ -65,7 +67,7 @@ MAIN_MENU_LOOP:
     MOV AX, highScore
     CALL PRINT_NUMBER
     
-    ; In Menu (1, 2, 3, 4)
+    ; in menu (1, 2, 3, 4)
     MOV DL, 25
     MOV DH, 9
     CALL SET_CURSOR
@@ -125,11 +127,11 @@ ASK_EXIT:
 WAIT_ENTER:
     MOV AH, 00H
     INT 16H
-    CMP AL, 13      ; Phím Enter (Carriage Return)
+    CMP AL, 13      ; phím enter (carriage return)
     JNE NOT_ENTER
     JMP EXIT_DOS
 NOT_ENTER:
-    JMP MAIN_MENU_LOOP ; Nhấn phím khác sẽ quay lại Menu
+    JMP MAIN_MENU_LOOP ; nhấn phím khác sẽ quay lại menu
 
 SET_EASY:
     MOV delayCX, 03H
@@ -150,16 +152,18 @@ PREPARE_GAME:
     
 GAME_LOOP:
     CMP gameOver, 1
-    JE END_GAME
+    JNE CONTINUE_GAME
+    JMP END_GAME
 
+CONTINUE_GAME:
     CALL READ_INPUT
     CALL UPDATE_SNAKE
     CALL DRAW_FRAME
     
-    ; In Điểm số khi đang chơi
+    ; in điểm số khi đang chơi
     MOV DL, offsetX
     MOV DH, offsetY
-    SUB DH, 2       ; In điểm cao hơn khung bản đồ 2 dòng
+    SUB DH, 2       ; in điểm cao hơn khung bản đồ 2 dòng
     CALL SET_CURSOR
     MOV AH, 09H
     LEA DX, msgScore
@@ -167,7 +171,7 @@ GAME_LOOP:
     MOV AX, score
     CALL PRINT_NUMBER
     
-    ; Tạo độ trễ
+    ; tạo độ trễ
     MOV CX, delayCX
     MOV DX, delayDX
     MOV AH, 86H
@@ -182,16 +186,16 @@ END_GAME:
 WAIT_YN:
     MOV AH, 00H
     INT 16H
-    OR AL, 20H      ; Đổi phím thành chữ thường (ví dụ 'Y' -> 'y')
+    OR AL, 20H      ; đổi phím thành chữ thường (ví dụ 'y' -> 'y')
     
     CMP AL, 'y'
     JNE CHECK_N
-    JMP PREPARE_GAME ; Chơi lại luôn với độ khó đang chọn
+    JMP PREPARE_GAME ; chơi lại luôn với độ khó đang chọn
     
 CHECK_N:
     CMP AL, 'n'
     JNE CONTINUE_WAIT
-    JMP MAIN_MENU_LOOP ; Không chơi nữa, thoạt ra Menu
+    JMP MAIN_MENU_LOOP ; không chơi nữa, thoát ra menu
     
 CONTINUE_WAIT:
     JMP WAIT_YN
@@ -202,20 +206,17 @@ EXIT_DOS:
     INT 21H
 MAIN ENDP
 
-; --------------------------------------------------------
-; Đặt lại các biến game khi bắt đầu ván mới
-; --------------------------------------------------------
+; đặt lại các biến game khi bắt đầu ván mới
 RESET_GAME_VARS PROC
     MOV snakeLen, 3
     MOV dir, 1
     MOV score, 0
     MOV gameOver, 0
+    MOV gameWin, 0
     RET
 RESET_GAME_VARS ENDP
 
-; --------------------------------------------------------
-; Cập nhật điểm Kỷ lục
-; --------------------------------------------------------
+; cập nhật điểm kỷ lục
 UPDATE_HIGH_SCORE PROC
     MOV AX, score
     CMP AX, highScore
@@ -225,28 +226,26 @@ NO_UPDATE_HS:
     RET
 UPDATE_HIGH_SCORE ENDP
 
-; --------------------------------------------------------
-; In số nguyên có trong thanh ghi AX ra màn hình
-; --------------------------------------------------------
+; in số nguyên có trong thanh ghi ax ra màn hình
 PRINT_NUMBER PROC
     PUSH AX
     PUSH BX
     PUSH CX
     PUSH DX
     
-    MOV CX, 0       ; Biến đếm số lượng chữ số
-    MOV BX, 10      ; Chia cho 10
+    MOV CX, 0       ; biến đếm số lượng chữ số
+    MOV BX, 10      ; chia cho 10
 DIV_LOOP:
-    XOR DX, DX      ; Xóa DX trước khi chia (vì DX:AX / BX)
-    DIV BX          ; Kết quả lưu trong AX, số dư lưu trong DX
-    PUSH DX         ; Cất số dư vào Stack
+    XOR DX, DX      ; xóa dx trước khi chia (vì dx:ax / bx)
+    DIV BX          ; kết quả lưu trong ax, số dư lưu trong dx
+    PUSH DX         ; cất số dư vào stack
     INC CX
-    CMP AX, 0       ; Nếu AX chưa về 0 thì chia tiếp
+    CMP AX, 0       ; nếu ax chưa về 0 thì chia tiếp
     JNE DIV_LOOP
     
 PRINT_LOOP:
-    POP DX          ; Lấy từng chữ số từ Stack (LIFO: ra đúng thứ tự)
-    ADD DL, '0'     ; Đổi sang ký tự ASCII
+    POP DX          ; lấy từng chữ số từ stack (lifo: ra đúng thứ tự)
+    ADD DL, '0'     ; đổi sang ký tự ascii
     MOV AH, 02H
     INT 21H
     LOOP PRINT_LOOP
@@ -258,14 +257,12 @@ PRINT_LOOP:
     RET
 PRINT_NUMBER ENDP
 
-; --------------------------------------------------------
-; Khởi tạo thông số game ban đầu
-; --------------------------------------------------------
+; khởi tạo thông số game ban đầu
 INIT_GAME PROC
-    ; Vẽ viền bản đồ
+    ; vẽ viền bản đồ
     CALL DRAW_BORDER
     
-    ; Tọa độ ban đầu của Rắn (Nằm giữa)
+    ; tọa độ ban đầu của rắn (nằm giữa)
     MOV snakeX[0], 8
     MOV snakeY[0], 8
     MOV snakeX[1], 7
@@ -273,23 +270,21 @@ INIT_GAME PROC
     MOV snakeX[2], 6
     MOV snakeY[2], 8
     
-    ; Tạo mồi đầu tiên
+    ; tạo mồi đầu tiên
     CALL SPAWN_FOOD
     RET
 INIT_GAME ENDP
 
-; --------------------------------------------------------
-; Xử lý Nhập từ Bàn phím (W, A, S, D và Mũi tên)
-; --------------------------------------------------------
+; xử lý nhập từ bàn phím (w, a, s, d và mũi tên)
 READ_INPUT PROC
-    MOV AH, 01H     ; Kiểm tra xem có phím nào được nhấn không
+    MOV AH, 01H     ; kiểm tra xem có phím nào được nhấn không
     INT 16H
-    JZ NO_KEY_PRESSED ; Nếu không có phím, tiếp tục giữ hướng cũ
+    JZ NO_KEY_PRESSED ; nếu không có phím, tiếp tục giữ hướng cũ
     
-    MOV AH, 00H     ; Đọc phím
+    MOV AH, 00H     ; đọc phím
     INT 16H
     
-    ; Chuyển phím chữ thường thành chữ hoa (để dễ so sánh W,A,S,D)
+    ; chuyển phím chữ thường thành chữ hoa (để dễ so sánh w,a,s,d)
     CMP AL, 'a'
     JB CHECK_KEYS
     CMP AL, 'z'
@@ -297,27 +292,27 @@ READ_INPUT PROC
     SUB AL, 32
 
 CHECK_KEYS:
-    ; AL chứa mã ASCII, AH chứa mã Scan Code (cho phím mũi tên)
+    ; al chứa mã ascii, ah chứa mã scan code (cho phím mũi tên)
     
-    ; Kiểm tra phím Lên (W hoặc Mũi tên lên)
+    ; kiểm tra phím lên (w hoặc mũi tên lên)
     CMP AL, 'W'
     JE TRY_UP
-    CMP AH, 48H     ; Scan code mũi tên Lên
+    CMP AH, 48H     ; scan code mũi tên lên
     JE TRY_UP
     
-    ; Kiểm tra phím Phải (D hoặc Mũi tên phải)
+    ; kiểm tra phím phải (d hoặc mũi tên phải)
     CMP AL, 'D'
     JE TRY_RIGHT
     CMP AH, 4DH
     JE TRY_RIGHT
     
-    ; Kiểm tra phím Xuống (S hoặc Mũi tên xuống)
+    ; kiểm tra phím xuống (s hoặc mũi tên xuống)
     CMP AL, 'S'
     JE TRY_DOWN
     CMP AH, 50H
     JE TRY_DOWN
     
-    ; Kiểm tra phím Trái (A hoặc Mũi tên trái)
+    ; kiểm tra phím trái (a hoặc mũi tên trái)
     CMP AL, 'A'
     JE TRY_LEFT
     CMP AH, 4BH
@@ -326,7 +321,7 @@ CHECK_KEYS:
     JMP NO_KEY_PRESSED
 
 TRY_UP:
-    CMP dir, 2      ; Không được đi ngược lại hướng hiện tại
+    CMP dir, 2      ; không được đi ngược lại hướng hiện tại
     JE NO_KEY_PRESSED
     MOV dir, 0
     JMP NO_KEY_PRESSED
@@ -349,11 +344,9 @@ NO_KEY_PRESSED:
     RET
 READ_INPUT ENDP
 
-; --------------------------------------------------------
-; Cập nhật logic Rắn (Di chuyển, ăn mồi, chết)
-; --------------------------------------------------------
+; cập nhật logic rắn (di chuyển, ăn mồi, chết)
 UPDATE_SNAKE PROC
-    ; 1. Xóa đuôi cũ trên màn hình
+    ; 1. xóa đuôi cũ trên màn hình
     MOV BX, snakeLen
     DEC BX
     MOV DL, snakeX[BX]
@@ -361,11 +354,11 @@ UPDATE_SNAKE PROC
     MOV DH, snakeY[BX]
     ADD DH, offsetY
     CALL SET_CURSOR
-    MOV DL, ' '     ; Xóa bằng dấu cách
+    MOV DL, ' '     ; xóa bằng dấu cách
     MOV AH, 02H
     INT 21H
 
-    ; 2. Dịch chuyển mảng tọa độ (từ đuôi lên đầu)
+    ; 2. dịch chuyển mảng tọa độ (từ đuôi lên đầu)
     MOV CX, snakeLen
     DEC CX
 SHIFT_LOOP:
@@ -377,7 +370,7 @@ SHIFT_LOOP:
     DEC CX
     JNZ SHIFT_LOOP
     
-    ; 3. Cập nhật cái Đầu mới dựa theo Hướng (dir)
+    ; 3. cập nhật cái đầu mới dựa theo hướng (dir)
     MOV AL, snakeX[1]
     MOV AH, snakeY[1]
     
@@ -390,19 +383,19 @@ SHIFT_LOOP:
     CMP dir, 3
     JE MOVE_LEFT
 
-MOVE_UP:    DEC AH  ; Y - 1
+MOVE_UP:    DEC AH  ; y - 1
             JMP CHECK_COLLISIONS
-MOVE_RIGHT: INC AL  ; X + 1
+MOVE_RIGHT: INC AL  ; x + 1
             JMP CHECK_COLLISIONS
-MOVE_DOWN:  INC AH  ; Y + 1
+MOVE_DOWN:  INC AH  ; y + 1
             JMP CHECK_COLLISIONS
-MOVE_LEFT:  DEC AL  ; X - 1
+MOVE_LEFT:  DEC AL  ; x - 1
 
 CHECK_COLLISIONS:
     MOV snakeX[0], AL
     MOV snakeY[0], AH
 
-    ; Kiểm tra đụng tường
+    ; kiểm tra đụng tường
     CMP AL, 0
     JL SET_GAME_OVER
     CMP AL, mapWidth
@@ -412,7 +405,7 @@ CHECK_COLLISIONS:
     CMP AH, mapHeight
     JGE SET_GAME_OVER
 
-    ; Kiểm tra cắn đuôi chính mình
+    ; kiểm tra cắn đuôi chính mình
     MOV CX, snakeLen
     DEC CX
     MOV BX, 1
@@ -423,13 +416,13 @@ CHECK_SELF_LOOP:
     JNE NEXT_SEGMENT
     CMP AH, DH
     JNE NEXT_SEGMENT
-    JMP SET_GAME_OVER  ; Trùng tọa độ với thân => Chết
+    JMP SET_GAME_OVER  ; trùng tọa độ với thân => chết
 NEXT_SEGMENT:
     INC BX
     DEC CX
     JNZ CHECK_SELF_LOOP
 
-    ; Kiểm tra ăn mồi
+    ; kiểm tra ăn mồi
     MOV DL, foodX
     MOV DH, foodY
     CMP AL, DL
@@ -437,10 +430,19 @@ NEXT_SEGMENT:
     CMP AH, DH
     JNE DONE_UPDATE
 
-    ; Nếu ăn mồi:
-    INC snakeLen       ; Tăng chiều dài
-    ADD score, 10      ; Tăng điểm
-    CALL SPAWN_FOOD    ; Tạo mồi mới
+    ; nếu ăn mồi:
+    INC snakeLen       ; tăng chiều dài
+    ADD score, 10      ; tăng điểm
+    
+    CMP snakeLen, 256  ; kiểm tra rắn đầy bản đồ chưa (16x16=256)
+    JNE CONTINUE_SPAWN
+    
+    MOV gameWin, 1     ; đánh dấu chiến thắng
+    MOV gameOver, 1    ; kết thúc game
+    JMP DONE_UPDATE
+    
+CONTINUE_SPAWN:
+    CALL SPAWN_FOOD    ; tạo mồi mới
     JMP DONE_UPDATE
 
 SET_GAME_OVER:
@@ -450,43 +452,59 @@ DONE_UPDATE:
     RET
 UPDATE_SNAKE ENDP
 
-; --------------------------------------------------------
-; Tạo Mồi Ngẫu Nhiên
-; --------------------------------------------------------
+; tạo mồi ngẫu nhiên
 SPAWN_FOOD PROC
 FIND_FOOD_POS:
-    ; Lấy số ngẫu nhiên từ bộ đếm thời gian hệ thống
+    ; lấy số ngẫu nhiên từ bộ đếm thời gian hệ thống
     MOV AH, 00H
-    INT 1AH         ; DX chứa tick count
+    INT 1AH         ; dx chứa tick count
     
-    ; X ngẫu nhiên (DX mod 16)
+    ; x ngẫu nhiên (dx mod 16)
     MOV AX, DX
     XOR DX, DX
     MOV CX, 16
     DIV CX
     MOV foodX, DL
     
-    ; Đọc lại để lấy Y ngẫu nhiên
+    ; đọc lại để lấy y ngẫu nhiên
     MOV AH, 00H
     INT 1AH
     
-    ; Y ngẫu nhiên (DX mod 16)
+    ; y ngẫu nhiên (dx mod 16)
     MOV AX, DX
-    ; Làm hoán vị DX một chút để Y khác X
+    ; làm hoán vị dx một chút để y khác x
     SHR AX, 3
     XOR DX, DX
     MOV CX, 16
     DIV CX
     MOV foodY, DL
 
+    ; kiểm tra xem mồi sinh ra có trùng với thân rắn không
+    MOV CX, snakeLen
+    MOV BX, 0
+CHECK_FOOD_COLLISION:
+    MOV AL, foodX
+    CMP AL, snakeX[BX]
+    JNE NEXT_FOOD_CHECK    ; nếu x khác nhau, tiếp tục kiểm tra đốt tiếp theo
+    
+    MOV AL, foodY
+    CMP AL, snakeY[BX]
+    JNE NEXT_FOOD_CHECK    ; nếu y khác nhau, tiếp tục kiểm tra đốt tiếp theo
+    
+    ; nếu cả x và y đều trùng với 1 đốt trên thân rắn -> tạo lại mồi
+    JMP FIND_FOOD_POS
+    
+NEXT_FOOD_CHECK:
+    INC BX
+    DEC CX
+    JNZ CHECK_FOOD_COLLISION
+
     RET
 SPAWN_FOOD ENDP
 
-; --------------------------------------------------------
-; Vẽ Game ra màn hình
-; --------------------------------------------------------
+; vẽ game ra màn hình
 DRAW_FRAME PROC
-    ; Vẽ Mồi (Food) kí tự '*'
+    ; vẽ mồi (food) kí tự '*'
     MOV DL, foodX
     ADD DL, offsetX
     MOV DH, foodY
@@ -496,7 +514,7 @@ DRAW_FRAME PROC
     MOV DL, '*'
     INT 21H
 
-    ; Vẽ Đầu rắn
+    ; vẽ đầu rắn
     MOV BX, 0
     MOV DL, snakeX[BX]
     ADD DL, offsetX
@@ -504,10 +522,10 @@ DRAW_FRAME PROC
     ADD DH, offsetY
     CALL SET_CURSOR
     MOV AH, 02H
-    MOV DL, 'O'     ; Kí tự Đầu Rắn
+    MOV DL, 'O'     ; kí tự đầu rắn
     INT 21H
     
-    ; Vẽ đốt ngay sau đầu thành 'o' (Để phân biệt đầu và thân)
+    ; vẽ đốt ngay sau đầu thành 'o' (để phân biệt đầu và thân)
     CMP snakeLen, 1
     JBE SKIP_BODY
     MOV BX, 1
@@ -517,22 +535,20 @@ DRAW_FRAME PROC
     ADD DH, offsetY
     CALL SET_CURSOR
     MOV AH, 02H
-    MOV DL, 'o'     ; Kí tự Thân rắn
+    MOV DL, 'o'     ; kí tự thân rắn
     INT 21H
 SKIP_BODY:
     RET
 DRAW_FRAME ENDP
 
-; --------------------------------------------------------
-; Vẽ Khung bản đồ (Border)
-; --------------------------------------------------------
+; vẽ khung bản đồ (border)
 DRAW_BORDER PROC
-    ; Vẽ tường trên và dưới
+    ; vẽ tường trên và dưới
     MOV CX, mapWidth
-    ADD CX, 2       ; Viền trái + phải
+    ADD CX, 2       ; viền trái + phải
 DRAW_HORIZ:
     PUSH CX
-    ; Tường trên
+    ; tường trên
     MOV DL, offsetX
     DEC DL
     ADD DL, CL
@@ -542,7 +558,7 @@ DRAW_HORIZ:
     MOV AH, 02H
     MOV DL, '#'
     INT 21H
-    ; Tường dưới
+    ; tường dưới
     MOV DL, offsetX
     DEC DL
     POP CX
@@ -557,11 +573,11 @@ DRAW_HORIZ:
     POP CX
     LOOP DRAW_HORIZ
 
-    ; Vẽ tường trái và phải
+    ; vẽ tường trái và phải
     MOV CX, mapHeight
 DRAW_VERT:
     PUSH CX
-    ; Tường trái
+    ; tường trái
     MOV DL, offsetX
     DEC DL
     MOV DH, offsetY
@@ -571,7 +587,7 @@ DRAW_VERT:
     MOV AH, 02H
     MOV DL, '#'
     INT 21H
-    ; Tường phải
+    ; tường phải
     MOV DL, offsetX
     ADD DL, mapWidth
     MOV DH, offsetY
@@ -588,45 +604,55 @@ DRAW_VERT:
     RET
 DRAW_BORDER ENDP
 
-; --------------------------------------------------------
-; Tiện ích: Xóa màn hình
-; --------------------------------------------------------
+; tiện ích: xóa màn hình
 CLEAR_SCREEN PROC
-    MOV AX, 0600H   ; Cuộn lên toàn màn hình
-    MOV BH, 07H     ; Thuộc tính màu (Trắng trên nền đen)
-    MOV CX, 0000H   ; Góc trên trái (0,0)
-    MOV DX, 184FH   ; Góc dưới phải (24, 79)
+    MOV AX, 0600H   ; cuộn lên toàn màn hình
+    MOV BH, 07H     ; thuộc tính màu (trắng trên nền đen)
+    MOV CX, 0000H   ; góc trên trái (0,0)
+    MOV DX, 184FH   ; góc dưới phải (24, 79)
     INT 10H
     
-    ; Đặt cursor về 0,0
+    ; đặt cursor về 0,0
     MOV DL, 0
     MOV DH, 0
     CALL SET_CURSOR
     RET
 CLEAR_SCREEN ENDP
 
-; --------------------------------------------------------
-; Tiện ích: Đặt con trỏ văn bản
-; DL = X (Cột), DH = Y (Hàng)
-; --------------------------------------------------------
+; tiện ích: đặt con trỏ văn bản
+; dl = x (cột), dh = y (hàng)
 SET_CURSOR PROC
     MOV AH, 02H
-    MOV BH, 0       ; Trang màn hình 0
+    MOV BH, 0       ; trang màn hình 0
     INT 10H
     RET
 SET_CURSOR ENDP
 
-; --------------------------------------------------------
-; Hiện thông báo Game Over và Hỏi chơi lại
-; --------------------------------------------------------
+; hiện thông báo kết thúc và hỏi chơi lại
 DRAW_GAME_OVER PROC
+    CMP gameWin, 1
+    JE SHOW_WIN_MSG
+    
+    ; hiện game over nếu thua
     MOV DL, 22
     MOV DH, 10
     CALL SET_CURSOR
     MOV AH, 09H
     LEA DX, msgGameOver
     INT 21H
+    JMP SHOW_ASK_MSG
     
+SHOW_WIN_MSG:
+    ; hiện thông báo chiến thắng
+    MOV DL, 22
+    MOV DH, 10
+    CALL SET_CURSOR
+    MOV AH, 09H
+    LEA DX, msgWin
+    INT 21H
+    
+SHOW_ASK_MSG:
+    ; hỏi chơi lại
     MOV DL, 22
     MOV DH, 11
     CALL SET_CURSOR

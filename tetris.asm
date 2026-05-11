@@ -2,7 +2,7 @@
 .MODEL SMALL
 .STACK 256
 .DATA
-    ; ===== CHUỖI VĂN BẢN (GIAO DIỆN) =====
+    ; Giao diện
     menu_title  DB '=== GAME TETRIS (ASSEMBLY) ===', 13, 10
                 DB 'Dieu khien: WASD hoac Phim Mui Ten', 13, 10
                 DB '>> Phim W hoac MUI TEN LEN de Xoay', 13, 10
@@ -23,7 +23,7 @@
     msg_next     DB 'NEXT:$'
     clear_spaces DB '      $'    ; Chuỗi khoảng trắng để xóa số cũ khi in đè
 
-    ; ===== BIẾN TRẠNG THÁI GAME =====
+    ; Biến trạng thái game
     board       DB 200 DUP(0)   ; Bảng game 10 cột x 20 hàng.
     board_w     EQU 10
     board_h     EQU 20
@@ -58,6 +58,8 @@
     colors      DB 0Bh, 09h, 0Ch, 0Eh, 0Ah, 0Dh, 04h
 
 .CODE
+;   Hiển thị menu, xử lý lựa chọn người chơi, khởi tạo game,
+;   vào vòng lặp game chính và xử lý kết thúc.
 MAIN PROC
     MOV AX, @DATA
     MOV DS, AX
@@ -123,7 +125,7 @@ InitGame:
     MOV score, 0
     MOV combo, 0
     
-    ; Sinh trước khối NEXT đầu tiên
+    ; Sinh trước khối tiếp theo đầu tiên
     MOV AX, rand_seed
     MOV CX, 25173
     MUL CX
@@ -168,7 +170,6 @@ WaitTick:
     CMP AX, 1
     JNE ApplyDrop
     
-    ; Nếu chạm -> Khóa khối, xóa hàng, sinh khối mới
     CALL LockPiece
     CALL ClearLines
     CALL SpawnPiece
@@ -221,7 +222,7 @@ ExitProg:
     INT 21h
 MAIN ENDP
 
-; ===== XỬ LÝ NHẬP PHÍM =====
+; Nhập phím
 CheckInput PROC
     MOV AH, 01h
     INT 16h
@@ -230,7 +231,6 @@ CheckInput PROC
     MOV AH, 00h
     INT 16h
     
-    ; Dùng Trampoline Jumps
     CMP AH, 4Bh         ; TRÁI
     JE JmpMoveLeft
     CMP AH, 4Dh         ; PHẢI
@@ -339,7 +339,7 @@ RetDown:
 
 CheckInput ENDP
 
-; ===== KIỂM TRA VA CHẠM (MA TRẬN 4x4) =====
+; Kiểm tra va chạm
 CheckCollision PROC
     PUSH BX
     PUSH CX
@@ -438,7 +438,7 @@ EndCol:
     RET
 CheckCollision ENDP
 
-; ===== GẮN KHỐI VÀO BẢNG =====
+; Đưa khối vào bảng
 LockPiece PROC
     PUSH AX
     PUSH BX
@@ -519,7 +519,7 @@ EndLock:
     RET
 LockPiece ENDP
 
-; ===== KHỞI TẠO KHỐI MỚI =====
+; Khởi tạo khối mới
 SpawnPiece PROC
     ; Đưa next block vào block chính
     MOV AX, next_piece_id
@@ -543,7 +543,8 @@ SpawnPiece PROC
     RET
 SpawnPiece ENDP
 
-; ===== XÓA HÀNG VÀ TÍNH ĐIỂM =====
+; ClearLines - Kiểm tra mỗi dòng trong bảng, xoá dòng đầy, dịch các dòng phía trên xuống,
+;   cập nhật số hàng phá và tính điểm dựa trên số dòng xóa liên tiếp.
 ClearLines PROC
     PUSH AX
     PUSH BX
@@ -575,8 +576,6 @@ CellNotEmpty:
     
     CMP DX, 1
     JNE NextLine
-    
-    ; Tăng biến đếm số hàng đã phá
     INC lines_cleared
     
     MOV CX, BX
@@ -626,10 +625,9 @@ ResumeLineLoop:
     JMP CheckLineLoop
     
 FinishClear:
-    ; === TÍNH TOÁN ĐIỂM SỐ COMBO ===
+    ; tính điểm số cho combo
     CMP lines_cleared, 0
     JNE CalcScore
-    ; Không phá được hàng nào -> Reset Combo
     MOV combo, 0
     JMP EndClearLines
 
@@ -674,7 +672,7 @@ EndClearLines:
     RET
 ClearLines ENDP
 
-; ===== XÓA MÀN HÌNH =====
+; xóa màn hình
 ClearScreen PROC
     MOV AX, 0003h
     INT 10h
@@ -685,7 +683,7 @@ ClearScreen PROC
     RET
 ClearScreen ENDP
 
-; ===== IN SỐ NGUYÊN =====
+; in số nguyên
 PrintNumber PROC
     PUSH AX
     PUSH BX
@@ -716,7 +714,7 @@ PrintLoopOut:
     RET
 PrintNumber ENDP
 
-; ===== VẼ GIAO DIỆN GAME =====
+; Vẽ giao diện game
 DrawGame PROC
     PUSH AX
     PUSH BX
@@ -802,7 +800,7 @@ CheckNextY:
     JMP DrawY
 
 EndDrawBoard:
-    ; ==== VẼ KHỐI GẠCH ĐANG RƠI ====
+    ; Vẽ gạch rơi
     MOV AX, piece_id
     SHL AX, 2
     ADD AX, piece_rot
@@ -860,7 +858,7 @@ CheckPieceY:
 EndDrawPiece:
     POP AX
 
-    ; ==== IN ĐIỂM SỐ ====
+    ; in điểm số
     MOV AH, 02h
     MOV BH, 0
     MOV DH, 5
@@ -870,7 +868,6 @@ EndDrawPiece:
     LEA DX, msg_score
     INT 21h
     
-    ; Đè bằng khoảng trắng để tránh số cũ còn dính
     MOV AH, 09h
     LEA DX, clear_spaces
     INT 21h
@@ -883,7 +880,6 @@ EndDrawPiece:
     MOV AX, score
     CALL PrintNumber
 
-    ; ==== IN COMBO ====
     MOV AH, 02h
     MOV BH, 0
     MOV DH, 6
@@ -905,7 +901,6 @@ EndDrawPiece:
     MOV AX, combo
     CALL PrintNumber
 
-    ; ==== VẼ CHỮ "NEXT:" ====
     MOV AH, 02h
     MOV BH, 0
     MOV DH, 8
@@ -915,23 +910,22 @@ EndDrawPiece:
     LEA DX, msg_next
     INT 21h
     
-    ; Xóa vùng 4x4 để vẽ khối Next Piece
     MOV BX, 0
 ClearNextYLoop:
     MOV CX, 0
 ClearNextXLoop:
-    MOV AX, 10          ; Hàng Y = 10
+    MOV AX, 10         
     ADD AX, BX
     MOV SI, 160
     MUL SI
     MOV DI, AX
     
     MOV AX, CX
-    ADD AX, 46          ; Cột X = 46
+    ADD AX, 46     
     SHL AX, 1
     ADD DI, AX
     
-    MOV AX, 0720h       ; Dấu cách (xóa màu cũ đi)
+    MOV AX, 0720h      
     MOV ES:[DI], AX
     
     INC CX
@@ -941,10 +935,9 @@ ClearNextXLoop:
     CMP BX, 4
     JL ClearNextYLoop
 
-    ; Vẽ Khối Next Piece
     MOV AX, next_piece_id
     SHL AX, 2
-    SHL AX, 1           ; Rot luôn = 0
+    SHL AX, 1          
     MOV SI, AX
     MOV DX, shapes[SI]
     
@@ -962,13 +955,11 @@ DrawNextBlockX:
     MOV AX, 10
     ADD AX, BX
     
-    ; --- [ĐÃ SỬA Ở ĐÂY] Bọc PUSH DX và POP DX để bảo toàn bitmask khối ---
     PUSH DX             
     MOV SI, 160
     MUL SI
     MOV DI, AX
     POP DX              
-    ; ---------------------------------------------------------------------
     
     MOV AX, CX
     ADD AX, 46
