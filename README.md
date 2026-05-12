@@ -1,4 +1,18 @@
-# Bài tập lớn môn Kiến trúc máy tính
+<div align="center">
+  <h1>Bài tập lớn - Kiến trúc máy tính</h1>
+
+  <p align="center">
+    Xây dựng ứng dụng Game Rắn săn mồi (Snake Game) bằng Hợp ngữ Assembly 8086.
+    <br />
+    <a href="#hướng-dẫn-cài-đặt-và-chạy"><strong>Hướng dẫn cài đặt »</strong></a>
+    &nbsp;·&nbsp;
+    <a href="#hướng-dẫn-chơi-snake">Snake Tutorial</a>
+    &nbsp;·&nbsp;
+    <a href="#hướng-dẫn-chơi-tetris">Tetris Tutorial</a>
+    &nbsp;·&nbsp;
+    <a href="SNAKE.md">SNAKE.md</a>
+  </p>
+</div>
 
 **Đọc [SNAKE.md](SNAKE.md) để biết thêm thông tin chi tiết về bài làm.**
 
