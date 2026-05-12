@@ -1,8 +1,11 @@
 # Bài tập lớn môn Kiến trúc máy tính
 
+**Đọc [SNAKE.md](SNAKE.md) để biết thêm thông tin chi tiết về bài làm.**
+
 ## Hướng dẫn cài đặt và chạy
 
 ### 1. Clone mã nguồn
+
 ```bash
 git clone https://github.com/alithw/BTL_KTMT.git
 cd BTL_KTMT
@@ -11,7 +14,7 @@ cd BTL_KTMT
 ### 2. Yêu cầu hệ thống
 - Môi trường DOS hoặc DOSBox để chạy chương trình.
 - Trình biên dịch/assembler TASM hoặc MASM tương thích x86.
-- Có thể sử dụng extension TASM/MASM
+- Có thể sử dụng extension TASM/MASM để chạy chương trình.
 
 ### 3. Biên dịch và chạy
 1. Mở DOSBox hoặc môi trường DOS tương thích.
