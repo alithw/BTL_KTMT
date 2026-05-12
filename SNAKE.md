@@ -26,12 +26,14 @@ Dự án này là một phiên bản hoàn chỉnh của trò chơi kinh điển
 ### ✨ Các tính năng chính
 
 * **Hệ thống Menu:** Cho phép chọn 3 cấp độ khó (Dễ, Trung bình, Khó) điều chỉnh tốc độ khung hình.
+<img width="1121" height="689" alt="Hệ thống Menu" src="https://github.com/user-attachments/assets/299922c1-f8db-499f-97e2-d66009fdc2f8" />
 
 * **Gameplay thời gian thực:** Di chuyển bằng `W, A, S, D` hoặc phím mũi tên.
-
 * **Tính điểm & Kỷ lục:** Cập nhật điểm số thời gian thực (`score`) và lưu kỷ lục cao nhất (`highScore`).
+ <img width="1117" height="693" alt="image" src="https://github.com/user-attachments/assets/c3a197f5-ab26-459c-ab49-311c564e0eb2" />
 
 * **Điều kiện kết thúc game:** Xử lý va chạm với tường, cắn vào đuôi (Game Over), hoặc rắn đạt độ dài tối đa lấp đầy bản đồ (Win).
+<img width="1008" height="666" alt="image" src="https://github.com/user-attachments/assets/ef2e6304-ffc8-42ee-a173-3702112b0d7a" />
 
 ---
 
@@ -99,9 +101,7 @@ Toàn bộ logic CISC phức tạp được module hóa bằng các `PROC`, gọ
 2. Clone repository:
 ```bash
 git clone https://github.com/alithw/BTL_KTMT.git
-
 ```
-
 
 3. Mount thư mục chứa code trong DOSBox.
 4. Biên dịch và liên kết tệp tin:
@@ -109,7 +109,6 @@ git clone https://github.com/alithw/BTL_KTMT.git
 TASM SNAKE.ASM
 TLINK SNAKE.OBJ
 ```
-
 
 5. Chạy file thực thi:
 ```dos
