@@ -8,7 +8,7 @@
     &nbsp;·&nbsp;
     <a href="#hướng-dẫn-chơi-snake">Snake Tutorial</a>
     &nbsp;·&nbsp;
-    <a href="#hướng-dẫn-chơi-tetris">Tetris Tutorial</a>
+    <a href="#hướng-dẫn-chơi-tetris-demo">Tetris (DEMO)</a>
     &nbsp;·&nbsp;
     <a href="SNAKE.md">SNAKE.md</a>
   </p>
@@ -70,7 +70,7 @@ Game Snake là trò chơi điều khiển con rắn ăn mồi trên bản đồ.
 - Rắn di chuyển liên tục; chỉ thay đổi hướng khi nhấn phím.
 - Độ khó ảnh hưởng đến tốc độ rắn.
 
-## Hướng dẫn chơi Tetris
+## Hướng dẫn chơi Tetris (Demo)
 
 Game Tetris là trò chơi xếp khối rơi xuống.
 
