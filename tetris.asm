@@ -15,7 +15,7 @@
     
     msg_wait_enter DB 13, 10, 'Ban da chon Thoat. Nhan ENTER de xac nhan... $'
     
-    msg_gameover DB 'THUA ROI!', 13, 10
+    msg_gameover DB 'GAME OVER!', 13, 10
                  DB 'Ban co muon choi lai khong? (Y/N): $'
 
     msg_score    DB 'DIEM: $'
