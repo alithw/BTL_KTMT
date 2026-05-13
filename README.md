@@ -2,19 +2,21 @@
   <h1>Bài tập lớn - Kiến trúc máy tính</h1>
 
   <p align="center">
-    Xây dựng ứng dụng Game Rắn săn mồi (Snake Game) bằng Hợp ngữ Assembly 8086.
+    Xây dựng ứng dụng Game bằng Hợp ngữ Assembly 8086.
     <br />
     <a href="#hướng-dẫn-cài-đặt-và-chạy"><strong>Hướng dẫn cài đặt »</strong></a>
     &nbsp;·&nbsp;
     <a href="#hướng-dẫn-chơi-snake">Snake Tutorial</a>
     &nbsp;·&nbsp;
-    <a href="#hướng-dẫn-chơi-tetris-demo">Tetris (DEMO)</a>
+    <a href="#hướng-dẫn-chơi-tetris">Tetris Tutorial</a>
     &nbsp;·&nbsp;
     <a href="SNAKE.md">SNAKE.md</a>
+    &nbsp;·&nbsp;
+    <a href="TETRIS.md">TETRIS.md</a>
   </p>
 </div>
 
-**Đọc [SNAKE.md](SNAKE.md) để biết thêm thông tin chi tiết về bài làm.**
+**Đọc [SNAKE.md](SNAKE.md) và [TETRIS.md](TETRIS.md) để biết thêm thông tin chi tiết về bài làm.**
 
 ## Hướng dẫn cài đặt và chạy
 
@@ -40,14 +42,34 @@ cd BTL_KTMT
    ```
    c:
    ```
-4. Biên dịch (nếu dùng TASM/TLINK):
-   - Cho `snake.asm`:
-     ```
-     tasm snake.asm
-     tlink snake.obj
-     ```
-5. Chạy chương trình Snake:
-   - `snake.exe`
+
+## Hướng dẫn chơi Tetris
+
+Game Tetris là trò chơi xếp khối rơi xuống.
+
+### Cách chơi:
+1. **Khởi động game**: Chạy `tetris.asm` trong môi trường DOS hoặc DOSBox.
+2. **Điều khiển khối**:
+   - Sử dụng phím mũi tên trái/phải để di chuyển khối ngang.
+   - Mũi tên xuống để tăng tốc rơi.
+   - Phím lên hoặc khoảng trắng để xoay khối.
+3. **Mục tiêu**: Xếp các khối sao cho tạo thành hàng đầy và xóa chúng để ghi điểm.
+4. **Kết thúc game**: Khi khối chồng lên đến đỉnh màn hình, game kết thúc.
+5. **Điểm số**: Điểm tăng dựa trên số hàng xóa và tốc độ.
+
+### Lưu ý:
+- Các khối rơi tự động; người chơi điều khiển vị trí và xoay.
+- Xóa nhiều hàng cùng một lúc để ghi điểm cao hơn.
+
+### Chạy Tetris
+- Biên dịch `tetris.asm`:
+  ```
+  tasm tetris.asm
+  tlink tetris.obj
+  ```
+- Chạy Tetris: `tetris.exe`
+
+Đọc **[TETRIS.md](TETRIS.md)** và để biết thêm thông tin chi tiết về bài làm.
 
 ## Hướng dẫn chơi Snake
 
@@ -70,31 +92,15 @@ Game Snake là trò chơi điều khiển con rắn ăn mồi trên bản đồ.
 - Rắn di chuyển liên tục; chỉ thay đổi hướng khi nhấn phím.
 - Độ khó ảnh hưởng đến tốc độ rắn.
 
-## Hướng dẫn chơi Tetris (Demo)
+### Chạy Snake
 
-Game Tetris là trò chơi xếp khối rơi xuống.
+- Biên dịch cho `snake.asm`:
+     ```
+     tasm snake.asm
+     tlink snake.obj
+     ```
+- Chạy Snake:
+   - `snake.exe`
 
-### Cách chơi:
-1. **Khởi động game**: Chạy `tetris.asm` trong môi trường DOS hoặc DOSBox.
-2. **Điều khiển khối**:
-   - Sử dụng phím mũi tên trái/phải để di chuyển khối ngang.
-   - Mũi tên xuống để tăng tốc rơi.
-   - Phím lên hoặc khoảng trắng để xoay khối.
-3. **Mục tiêu**: Xếp các khối sao cho tạo thành hàng đầy và xóa chúng để ghi điểm.
-4. **Kết thúc game**: Khi khối chồng lên đến đỉnh màn hình, game kết thúc.
-5. **Điểm số**: Điểm tăng dựa trên số hàng xóa và tốc độ.
-
-### Lưu ý:
-- Các khối rơi tự động; người chơi điều khiển vị trí và xoay.
-- Xóa nhiều hàng cùng lúc để ghi điểm cao hơn.
-
-### Chạy Tetris
-- Biên dịch `tetris.asm`:
-  ```
-  tasm tetris.asm
-  tlink tetris.obj
-  ```
-- Chạy Tetris: `tetris.exe`
-
-Đọc **[SNAKE.md](SNAKE.md)** để biết thêm thông tin chi tiết về bài làm.
+Đọc **[SNAKE.md](SNAKE.md)** và để biết thêm thông tin chi tiết về bài làm.
 
